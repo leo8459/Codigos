@@ -344,17 +344,18 @@ return [
             ],
         ],
         [
-            'text' => 'Consultas Informacion',
+            'text' => 'Generar Codigos',
             'icon' => 'fas fa-users',
             // 'can'  => 'users.index',
             'submenu' => [
                 [
-                    'text' => 'Consulta Correspondencia',
-                    'url' => '',
+                    'text' => 'Generar codigos EN',
+                    'url' => 'codigo',
                     'icon' => 'fas fa-user',
                 ],
             ],
         ],
+
         [
             'text' => 'Rendimiento',
             'url' => '/pulse',

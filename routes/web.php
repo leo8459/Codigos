@@ -3,6 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\CodigoController;
+
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleHasPermissionController;
 use Illuminate\Support\Facades\Route;
@@ -72,6 +74,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+
+    Route::get('/codigo', [CodigoController::class, 'generarcodigos']);
+    Route::get('/generar/pdf', [CodigoController::class, 'exportarPDF'])->name('generar.pdf');
+
 });
 
 require __DIR__ . '/auth.php';

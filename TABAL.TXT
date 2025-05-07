@@ -1,0 +1,1 @@
+    php artisan migrate --path=/database/migrations/2025_05_07_221107_create_codigos_table.php
