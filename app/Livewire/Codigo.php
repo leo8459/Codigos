@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use DNS1D;
 use Illuminate\Support\Facades\Session;
 use Livewire\WithPagination;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class Codigo extends Component
 {
@@ -16,6 +17,13 @@ class Codigo extends Component
     public $cantidad;
     public $sufijo = 'LPB'; // Valor por defecto
     protected $paginationTheme = 'bootstrap';
+    public $fechaInicio;
+    public $fechaFin;
+    public $filtroSufijo;
+
+    
+
+
 
     public function generar()
     {
@@ -59,9 +67,61 @@ class Codigo extends Component
         return redirect()->route('generar.pdf');
     }
 
-    public function render()
-    {
-        $codigos = Code::latest()->paginate(20);
-        return view('livewire.codigo', compact('codigos'));
+   public function render()
+{
+    $query = Code::query();
+
+    if ($this->fechaInicio && $this->fechaFin) {
+        $fechaInicio = \Carbon\Carbon::parse($this->fechaInicio)->startOfDay(); // 00:00:00
+        $fechaFin = \Carbon\Carbon::parse($this->fechaFin)->endOfDay();         // 23:59:59
+    
+        $query->whereBetween('created_at', [$fechaInicio, $fechaFin]);
     }
+    
+
+    if ($this->filtroSufijo) {
+        $query->where('codigo', 'LIKE', '%'.$this->filtroSufijo);
+    }
+
+    $codigos = $query->latest()->paginate(20);
+
+    return view('livewire.codigo', compact('codigos'));
+}
+
+public function exportarPDF()
+{
+    $query = Code::query();
+
+    if ($this->fechaInicio && $this->fechaFin) {
+        $fechaInicio = \Carbon\Carbon::parse($this->fechaInicio)->startOfDay(); // 00:00:00
+        $fechaFin = \Carbon\Carbon::parse($this->fechaFin)->endOfDay();         // 23:59:59
+    
+        $query->whereBetween('created_at', [$fechaInicio, $fechaFin]);
+    }
+    
+
+    if ($this->filtroSufijo) {
+        $query->where('codigo', 'LIKE', '%'.$this->filtroSufijo);
+    }
+
+    $codigos = $query->get();
+
+    // Agrupar por sufijo (IATA)
+    $resumen = $codigos->groupBy(function ($item) {
+        return substr($item->codigo, -3); // Últimos 3 caracteres
+    })->map(function ($group) {
+        return $group->count();
+    });
+
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.reporte-resumen-iata', [
+        'resumen' => $resumen,
+        'fechaInicio' => $this->fechaInicio,
+        'fechaFin' => $this->fechaFin,
+    ])->setPaper('letter', 'portrait');
+
+    return response()->streamDownload(function () use ($pdf) {
+        echo $pdf->stream();
+    }, 'reporte_resumen_iata.pdf');
+}
+
 }

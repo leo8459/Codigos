@@ -24,7 +24,44 @@
             </div>
         </div>
     </form>
-
+    <form wire:submit.prevent="generar" class="mb-4">
+        <div class="row">
+            <div class="col-md-2">
+                <label>Desde</label>
+                <input type="date" wire:model="fechaInicio" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label>Hasta</label>
+                <input type="date" wire:model="fechaFin" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label>Filtrar por IATA</label>
+                <select wire:model="filtroSufijo" class="form-control">
+                    <option value="">-- Todos --</option>
+                    <option value="SRZ">SRZ</option>
+                    <option value="CIJ">CIJ</option>
+                    <option value="TDD">TDD</option>
+                    <option value="TJA">TJA</option>
+                    <option value="LPB">LPB</option>
+                    <option value="SRE">SRE</option>
+                    <option value="ORU">ORU</option>
+                    <option value="CBB">CBB</option>
+                    <option value="POI">POI</option>
+                </select>
+            </div>
+            <div class="mt-3">
+                <button wire:click="exportarPDF" class="btn btn-danger">
+                    <i class="fas fa-file-pdf"></i> Exportar Resumen PDF
+                </button>
+            </div>
+            
+            
+            {{-- <div class="col-md-3 align-self-end">
+                <button type="submit" class="btn btn-primary w-100">Generar Reporte</button>
+            </div> --}}
+        </div>
+    </form>
+    
     @if (session()->has('message'))
         <div class="alert alert-success">
             {{ session('message') }}

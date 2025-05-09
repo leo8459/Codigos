@@ -1,8 +1,13 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <style>
+        @page {
+            margin: 1cm;
+        }
+
         body {
             font-family: sans-serif;
             margin: 0;
@@ -20,11 +25,17 @@
         }
 
         td {
-            width: 130px;  /* Aproximadamente 6 cm */
+            width: 130px;
+            /* Aproximadamente 6 cm */
             height: 70px;
             text-align: center;
             vertical-align: middle;
-            padding: 5px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-left: 12px;
+            /* Aumenta el espacio a la izquierda */
+            padding-right: 12px;
+            /* Aumenta el espacio a la derecha */
             border-right: 1px dashed #999;
             border-bottom: 1px dashed #999;
         }
@@ -51,15 +62,16 @@
         }
     </style>
 </head>
+
 <body>
     <div class="pagina">
         <table>
             <tbody>
-                @foreach($codigos as $codigo)
+                @foreach ($codigos as $codigo)
                     <tr>
-                        @for($i = 0; $i < 4; $i++)
+                        @for ($i = 0; $i < 4; $i++)
                             <td>
-                                <img src="{{ public_path('storage/' . $codigo->barcode) }}" alt="Barras">
+                                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('storage/' . $codigo->barcode))) }}" alt="Barras">
                                 <div class="codigo-texto">{{ $codigo->codigo }}</div>
                             </td>
                         @endfor
@@ -69,4 +81,5 @@
         </table>
     </div>
 </body>
+
 </html>
