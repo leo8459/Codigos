@@ -353,6 +353,11 @@ return [
                     'url' => 'codigo',
                     'icon' => 'fas fa-user',
                 ],
+                 [
+                    'text' => 'Generar codigos EN',
+                    'url' => 'empresa',
+                    'icon' => 'fas fa-user',
+                ],
             ],
         ],
 
