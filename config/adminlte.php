@@ -359,8 +359,22 @@ return [
                     'icon' => 'fas fa-user',
                 ],
             ],
+              
         ],
-
+ [
+            'text' => 'Crear Empresa',
+            'icon' => 'fas fa-users',
+            // 'can'  => 'users.index',
+            
+              'submenu' => [
+               
+                 [
+                    'text' => 'Crear Empresa',
+                    'url' => 'empresa',
+                    'icon' => 'fas fa-user',
+                ],
+            ],
+        ],
         [
             'text' => 'Rendimiento',
             'url' => '/pulse',
