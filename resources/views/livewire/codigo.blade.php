@@ -24,6 +24,20 @@
             </div>
         </div>
     </form>
+    <form wire:submit.prevent="reimprimirPDF" class="mb-4 mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <label>Reimprimir códigos específicos (separar con coma)</label>
+            <input type="text" wire:model="codigosReimprimir" class="form-control" placeholder="Ej: EN000123LPB, EN000124LPB">
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-warning w-100">
+                <i class="fas fa-print"></i> Reimprimir Seleccionados
+            </button>
+        </div>
+    </div>
+</form>
+
     <form wire:submit.prevent="generar" class="mb-4">
         <div class="row">
             <div class="col-md-2">

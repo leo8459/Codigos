@@ -20,6 +20,7 @@ class Codigo extends Component
     public $fechaInicio;
     public $fechaFin;
     public $filtroSufijo;
+public $codigosReimprimir = '';
 
     
 
@@ -122,6 +123,32 @@ public function exportarPDF()
     return response()->streamDownload(function () use ($pdf) {
         echo $pdf->stream();
     }, 'reporte_resumen_iata.pdf');
+}
+
+
+
+public function reimprimirPDF()
+{
+    $codigosArray = array_filter(array_map('trim', explode(',', $this->codigosReimprimir)));
+
+    if (empty($codigosArray)) {
+        session()->flash('message', 'Debe ingresar al menos un código válido.');
+        return;
+    }
+
+    $codigos = Code::whereIn('codigo', $codigosArray)->get();
+
+    if ($codigos->isEmpty()) {
+        session()->flash('message', 'No se encontraron coincidencias con los códigos ingresados.');
+        return;
+    }
+
+    $pdf = Pdf::loadView('codigos.reporte', compact('codigos'))
+              ->setPaper('legal', 'portrait');
+
+    return response()->streamDownload(function () use ($pdf) {
+        echo $pdf->stream();
+    }, 'reimpresion_codigos.pdf');
 }
 
 }
