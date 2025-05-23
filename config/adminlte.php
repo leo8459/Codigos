@@ -354,8 +354,8 @@ return [
                     'icon' => 'fas fa-user',
                 ],
                  [
-                    'text' => 'Generar codigos EN',
-                    'url' => 'empresa',
+                    'text' => 'Generar codigos CONTRATOS',
+                    'url' => 'codigo-crear',
                     'icon' => 'fas fa-user',
                 ],
             ],

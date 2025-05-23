@@ -3,7 +3,7 @@
         {{ date('Y') }} Agencia Boliviana de Correos ©
         <strong>TrackingBO</strong> Todos los derechos reservados.
     </div>
-    Todos los derechos reservados.<strong>sysReclamos</strong>
-    <a href="mailto:mespinozarojas46@gmail.com" class="opacity-75" title="Marco Antonio Espinoza Rojas">Copyright © MAER
+    Todos los derechos reservados.<strong>Codigos</strong>
+    <a href="mailto:joseaguilar987654321@gmail.com" class="opacity-75" title="Leonardo Glen Doria Medina Ochoa">Copyright © LGDMO
         {{ date('Y') }} </a>
 </footer>

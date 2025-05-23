@@ -20,9 +20,9 @@ class Codigo extends Component
     public $fechaInicio;
     public $fechaFin;
     public $filtroSufijo;
-public $codigosReimprimir = '';
+    public $codigosReimprimir = '';
 
-    
+
 
 
 
@@ -31,10 +31,10 @@ public $codigosReimprimir = '';
         $this->validate([
             'cantidad' => 'required|integer|min:1',
         ]);
-    
-        $ultimo = Code::where('codigo', 'LIKE', '%'.$this->sufijo)
-        ->orderBy('id', 'desc')
-        ->first();
+
+        $ultimo = Code::where('codigo', 'LIKE', '%' . $this->sufijo)
+            ->orderBy('id', 'desc')
+            ->first();
         if ($ultimo) {
             // Extrae el número entre EN y el sufijo
             preg_match('/EN(\d+)' . $this->sufijo . '/', $ultimo->codigo, $match);
@@ -42,113 +42,112 @@ public $codigosReimprimir = '';
         } else {
             $numeroInicio = 0;
         }
-            
+
         $idsGenerados = [];
-    
+
         for ($i = 1; $i <= $this->cantidad; $i++) {
             $numero = str_pad($numeroInicio + $i, 6, '0', STR_PAD_LEFT);
             $codigo = "EN{$numero}{$this->sufijo}";
-    
+
             $barcode = DNS1D::getBarcodePNG($codigo, 'C128');
             $filename = "barcodes/{$codigo}.png";
             Storage::disk('public')->put($filename, base64_decode($barcode));
-    
+
             $nuevo = Code::create([
                 'codigo' => $codigo,
                 'barcode' => $filename,
             ]);
-    
+
             $idsGenerados[] = $nuevo->id;
         }
-    
+
         // Guarda los IDs generados en sesión
         session()->put('codigos_generados', $idsGenerados);
-    
+
         // Redirige al PDF
         return redirect()->route('generar.pdf');
     }
 
-   public function render()
-{
-    $query = Code::query();
+    public function render()
+    {
+        $query = Code::query();
 
-    if ($this->fechaInicio && $this->fechaFin) {
-        $fechaInicio = \Carbon\Carbon::parse($this->fechaInicio)->startOfDay(); // 00:00:00
-        $fechaFin = \Carbon\Carbon::parse($this->fechaFin)->endOfDay();         // 23:59:59
-    
-        $query->whereBetween('created_at', [$fechaInicio, $fechaFin]);
-    }
-    
+        if ($this->fechaInicio && $this->fechaFin) {
+            $fechaInicio = \Carbon\Carbon::parse($this->fechaInicio)->startOfDay(); // 00:00:00
+            $fechaFin = \Carbon\Carbon::parse($this->fechaFin)->endOfDay();         // 23:59:59
 
-    if ($this->filtroSufijo) {
-        $query->where('codigo', 'LIKE', '%'.$this->filtroSufijo);
-    }
+            $query->whereBetween('created_at', [$fechaInicio, $fechaFin]);
+        }
 
-    $codigos = $query->latest()->paginate(20);
 
-    return view('livewire.codigo', compact('codigos'));
-}
+        if ($this->filtroSufijo) {
+            $query->where('codigo', 'LIKE', '%' . $this->filtroSufijo);
+        }
 
-public function exportarPDF()
-{
-    $query = Code::query();
+        $codigos = $query->latest()->paginate(20);
 
-    if ($this->fechaInicio && $this->fechaFin) {
-        $fechaInicio = \Carbon\Carbon::parse($this->fechaInicio)->startOfDay(); // 00:00:00
-        $fechaFin = \Carbon\Carbon::parse($this->fechaFin)->endOfDay();         // 23:59:59
-    
-        $query->whereBetween('created_at', [$fechaInicio, $fechaFin]);
-    }
-    
-
-    if ($this->filtroSufijo) {
-        $query->where('codigo', 'LIKE', '%'.$this->filtroSufijo);
+        return view('livewire.codigo', compact('codigos'));
     }
 
-    $codigos = $query->get();
+    public function exportarPDF()
+    {
+        $query = Code::query();
 
-    // Agrupar por sufijo (IATA)
-    $resumen = $codigos->groupBy(function ($item) {
-        return substr($item->codigo, -3); // Últimos 3 caracteres
-    })->map(function ($group) {
-        return $group->count();
-    });
+        if ($this->fechaInicio && $this->fechaFin) {
+            $fechaInicio = \Carbon\Carbon::parse($this->fechaInicio)->startOfDay(); // 00:00:00
+            $fechaFin = \Carbon\Carbon::parse($this->fechaFin)->endOfDay();         // 23:59:59
 
-    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.reporte-resumen-iata', [
-        'resumen' => $resumen,
-        'fechaInicio' => $this->fechaInicio,
-        'fechaFin' => $this->fechaFin,
-    ])->setPaper('letter', 'portrait');
-
-    return response()->streamDownload(function () use ($pdf) {
-        echo $pdf->stream();
-    }, 'reporte_resumen_iata.pdf');
-}
+            $query->whereBetween('created_at', [$fechaInicio, $fechaFin]);
+        }
 
 
+        if ($this->filtroSufijo) {
+            $query->where('codigo', 'LIKE', '%' . $this->filtroSufijo);
+        }
 
-public function reimprimirPDF()
-{
-    $codigosArray = array_filter(array_map('trim', explode(',', $this->codigosReimprimir)));
+        $codigos = $query->get();
 
-    if (empty($codigosArray)) {
-        session()->flash('message', 'Debe ingresar al menos un código válido.');
-        return;
+        // Agrupar por sufijo (IATA)
+        $resumen = $codigos->groupBy(function ($item) {
+            return substr($item->codigo, -3); // Últimos 3 caracteres
+        })->map(function ($group) {
+            return $group->count();
+        });
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.reporte-resumen-iata', [
+            'resumen' => $resumen,
+            'fechaInicio' => $this->fechaInicio,
+            'fechaFin' => $this->fechaFin,
+        ])->setPaper('letter', 'portrait');
+
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->stream();
+        }, 'reporte_resumen_iata.pdf');
     }
 
-    $codigos = Code::whereIn('codigo', $codigosArray)->get();
 
-    if ($codigos->isEmpty()) {
-        session()->flash('message', 'No se encontraron coincidencias con los códigos ingresados.');
-        return;
+
+    public function reimprimirPDF()
+    {
+        $codigosArray = array_filter(array_map('trim', explode(',', $this->codigosReimprimir)));
+
+        if (empty($codigosArray)) {
+            session()->flash('message', 'Debe ingresar al menos un código válido.');
+            return;
+        }
+
+        $codigos = Code::whereIn('codigo', $codigosArray)->get();
+
+        if ($codigos->isEmpty()) {
+            session()->flash('message', 'No se encontraron coincidencias con los códigos ingresados.');
+            return;
+        }
+
+        $pdf = Pdf::loadView('codigos.reporte', compact('codigos'))
+            ->setPaper('legal', 'portrait');
+
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->stream();
+        }, 'reimpresion_codigos.pdf');
     }
-
-    $pdf = Pdf::loadView('codigos.reporte', compact('codigos'))
-              ->setPaper('legal', 'portrait');
-
-    return response()->streamDownload(function () use ($pdf) {
-        echo $pdf->stream();
-    }, 'reimpresion_codigos.pdf');
-}
-
 }

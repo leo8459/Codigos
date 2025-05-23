@@ -5,6 +5,6 @@
 @endsection
 
 @section('content')
-@livewire('codigo')
-@include('footer')
+    @livewire('codigo-empresa')
+    @include('footer')
 @endsection

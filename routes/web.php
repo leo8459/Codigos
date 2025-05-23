@@ -4,9 +4,11 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\CodigoController;
+use App\Http\Controllers\CodigoEmpresaController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleHasPermissionController;
+use App\Livewire\CodigoEmpresa;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -78,9 +80,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/codigo', [CodigoController::class, 'generarcodigos']);
     Route::get('/generar/pdf', [CodigoController::class, 'exportarPDF'])->name('generar.pdf');
-Route::get('/empresa', [EmpresaController::class, 'index'])->name('empresas.index');
+    Route::get('/empresa', [EmpresaController::class, 'index'])->name('empresas.index');
     Route::get('/empresa/crear', [EmpresaController::class, 'create'])->name('empresas.create');
-
+    Route::get('/codigo-crear', [CodigoEmpresaController::class, 'crearcodigo']);
+Route::get('/codigos/pdf/{ids}', [CodigoEmpresaController::class, 'generarPDF'])->name('codigos.pdf');
 
 });
 
