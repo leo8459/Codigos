@@ -73,7 +73,7 @@ if (!file_exists($ruta)) {
     $idsGenerados      = CodigoEmpresas::whereIn('codigo', $codigosInsertados)
                         ->pluck('id')->join(',');
 
-    // return redirect()->route('codigos.pdf', ['ids' => $idsGenerados]);
+    return redirect()->route('codigos.pdf', ['ids' => $idsGenerados]);
 }
 
 
