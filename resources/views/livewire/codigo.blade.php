@@ -1,13 +1,34 @@
-<div>
-    <form wire:submit.prevent="generar" class="mb-4">
-        <div class="row">
+{{-- resources/views/livewire/codigos.blade.php --}}
+<div
+    x-data="{ accion: '' }"       {{-- estado Alpine para mostrar el formulario correcto --}}
+    x-cloak                     {{-- oculta parpadeo hasta que cargue Alpine --}}
+>
+    {{-- SELECTOR DE ACCIONES --------------------------------------------------- --}}
+    <div class="mb-4">
+        <label class="form-label fw-bold">Seleccione una acción</label>
+        <select x-model="accion" class="form-select">
+            <option value="">-- Elegir --</option>
+            <option value="generar">🧾 Generar Códigos</option>
+            <option value="reimprimir">🔁 Reimprimir Códigos</option>
+            <option value="reporte">📊 Exportar Resumen PDF</option>
+        </select>
+    </div>
+
+    {{-- FORMULARIO GENERAR ------------------------------------------------------ --}}
+    <form wire:submit.prevent="generar"
+          x-show="accion === 'generar'"
+          x-transition
+          class="mb-4 border rounded p-3"
+    >
+        <h6 class="text-primary fw-bold mb-3">🧾 Generar Códigos</h6>
+        <div class="row g-3">
             <div class="col-md-4">
-                <label>Cantidad de Códigos a Generar</label>
+                <label class="form-label">Cantidad de Códigos</label>
                 <input type="number" wire:model="cantidad" class="form-control" min="1">
             </div>
             <div class="col-md-4">
-                <label>Seleccionar Sufijo</label>
-                <select wire:model="sufijo" class="form-control">
+                <label class="form-label">Seleccionar Sufijo</label>
+                <select wire:model="sufijo" class="form-select">
                     <option value="SRZ">SRZ</option>
                     <option value="CIJ">CIJ</option>
                     <option value="TDD">TDD</option>
@@ -24,33 +45,47 @@
             </div>
         </div>
     </form>
-    <form wire:submit.prevent="reimprimirPDF" class="mb-4 mt-4">
-    <div class="row">
-        <div class="col-md-8">
-            <label>Reimprimir códigos específicos (separar con coma)</label>
-            <input type="text" wire:model="codigosReimprimir" class="form-control" placeholder="Ej: EN000123LPB, EN000124LPB">
-        </div>
-        <div class="col-md-4 d-flex align-items-end">
-            <button type="submit" class="btn btn-warning w-100">
-                <i class="fas fa-print"></i> Reimprimir Seleccionados
-            </button>
-        </div>
-    </div>
-</form>
 
-    <form wire:submit.prevent="generar" class="mb-4">
-        <div class="row">
+    {{-- FORMULARIO REIMPRIMIR --------------------------------------------------- --}}
+    <form wire:submit.prevent="reimprimirPDF"
+          x-show="accion === 'reimprimir'"
+          x-transition
+          class="mb-4 border border-warning rounded p-3"
+    >
+        <h6 class="text-warning fw-bold mb-3">🔁 Reimprimir Códigos</h6>
+        <div class="row g-3">
+            <div class="col-md-8">
+                <label class="form-label">Códigos separados por coma</label>
+                <input type="text" wire:model="codigosReimprimir"
+                       class="form-control"
+                       placeholder="Ej: EN000123LPB, EN000124LPB">
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-warning w-100">
+                    <i class="fas fa-print"></i> Reimprimir Seleccionados
+                </button>
+            </div>
+        </div>
+    </form>
+
+    {{-- FORMULARIO REPORTE ------------------------------------------------------ --}}
+    <form x-show="accion === 'reporte'"
+          x-transition
+          class="mb-4 border border-info rounded p-3"
+    >
+        <h6 class="text-info fw-bold mb-3">📊 Exportar Resumen PDF</h6>
+        <div class="row g-3">
             <div class="col-md-2">
-                <label>Desde</label>
+                <label class="form-label">Desde</label>
                 <input type="date" wire:model="fechaInicio" class="form-control">
             </div>
             <div class="col-md-2">
-                <label>Hasta</label>
+                <label class="form-label">Hasta</label>
                 <input type="date" wire:model="fechaFin" class="form-control">
             </div>
             <div class="col-md-2">
-                <label>Filtrar por IATA</label>
-                <select wire:model="filtroSufijo" class="form-control">
+                <label class="form-label">Filtrar por IATA</label>
+                <select wire:model="filtroSufijo" class="form-select">
                     <option value="">-- Todos --</option>
                     <option value="SRZ">SRZ</option>
                     <option value="CIJ">CIJ</option>
@@ -63,25 +98,23 @@
                     <option value="POI">POI</option>
                 </select>
             </div>
-            <div class="mt-3">
-                <button wire:click="exportarPDF" class="btn btn-danger">
-                    <i class="fas fa-file-pdf"></i> Exportar Resumen PDF
+            <div class="col-md-3 d-flex align-items-end">
+                {{-- Botón independiente: llama al método exportarPDF --}}
+                <button wire:click.prevent="exportarPDF" class="btn btn-danger w-100">
+                    <i class="fas fa-file-pdf"></i> Exportar PDF
                 </button>
             </div>
-            
-            
-            {{-- <div class="col-md-3 align-self-end">
-                <button type="submit" class="btn btn-primary w-100">Generar Reporte</button>
-            </div> --}}
         </div>
     </form>
-    
+
+    {{-- MENSAJES ---------------------------------------------------------------- --}}
     @if (session()->has('message'))
         <div class="alert alert-success">
             {{ session('message') }}
         </div>
     @endif
 
+    {{-- TABLA DE RESULTADOS ----------------------------------------------------- --}}
     <div class="card shadow">
         <div class="card-header bg-dark text-white">
             Últimos Códigos Generados
