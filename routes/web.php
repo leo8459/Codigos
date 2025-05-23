@@ -84,6 +84,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/empresa/crear', [EmpresaController::class, 'create'])->name('empresas.create');
     Route::get('/codigo-crear', [CodigoEmpresaController::class, 'crearcodigo']);
 Route::get('/codigos/pdf/{ids}', [CodigoEmpresaController::class, 'generarPDF'])->name('codigos.pdf');
+Route::post('/codigos/reimprimir', [CodigoEmpresaController::class, 'reimprimir'])->name('codigos.reimprimir');
+Route::get('/reporte-codigos', [\App\Http\Controllers\CodigoEmpresaController::class, 'formularioReporte'])->name('codigos.reporte.form');
+Route::post('/reporte-codigos/pdf', [\App\Http\Controllers\CodigoEmpresaController::class, 'generarReporte'])->name('codigos.reporte.generar');
 
 });
 

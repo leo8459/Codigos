@@ -9,20 +9,24 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Milon\Barcode\DNS1D;
+use Livewire\WithPagination;
 
 
 
 
 class CodigoEmpresa extends Component
 {
+        use WithPagination;
+    protected $paginationTheme = 'bootstrap'; // usa Bootstrap para el estilo de paginación
+
     public $empresa_id;
     public $cantidad = 1;
-    public $codigos;
+    // public $codigos;
 
-    public function mount()
-    {
-        $this->codigos = CodigoEmpresas::with('empresa')->get();
-    }
+    // public function mount()
+    // {
+    //     $this->codigos = CodigoEmpresas::with('empresa')->get();
+    // }
 
    public function generar()
 {
@@ -69,14 +73,16 @@ if (!file_exists($ruta)) {
     $idsGenerados      = CodigoEmpresas::whereIn('codigo', $codigosInsertados)
                         ->pluck('id')->join(',');
 
-    return redirect()->route('codigos.pdf', ['ids' => $idsGenerados]);
+    // return redirect()->route('codigos.pdf', ['ids' => $idsGenerados]);
 }
 
 
     public function render()
     {
         return view('livewire.codigo-empresa', [
-            'codigos' => $this->codigos,
+            'codigos' => CodigoEmpresas::with('empresa')
+                ->orderBy('id', 'desc')
+                ->paginate(10),
             'empresas' => Empresas::all(),
         ]);
     }
