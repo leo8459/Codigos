@@ -9,6 +9,16 @@ use DNS1D;
 use Illuminate\Support\Facades\Session;
 use Livewire\WithPagination;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Eventos; // Asegúrate de importar el modelo Evento
+use App\Models\Admision;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+use Livewire\WithFileDownloads; // Importar el trait
+use App\Models\Historico; // Asegúrate de importar el modelo Evento
+use Illuminate\Support\Facades\Http;
 
 class Codigo extends Component
 {
@@ -27,46 +37,52 @@ class Codigo extends Component
 
 
     public function generar()
-    {
-        $this->validate([
-            'cantidad' => 'required|integer|min:1',
+{
+    $this->validate([
+        'cantidad' => 'required|integer|min:1',
+    ]);
+
+    $ultimo = Code::where('codigo', 'LIKE', '%' . $this->sufijo)
+        ->orderBy('id', 'desc')
+        ->first();
+
+    if ($ultimo) {
+        preg_match('/EN(\d+)' . $this->sufijo . '/', $ultimo->codigo, $match);
+        $numeroInicio = isset($match[1]) ? (int) $match[1] : 0;
+    } else {
+        $numeroInicio = 0;
+    }
+
+    $idsGenerados = [];
+
+    for ($i = 1; $i <= $this->cantidad; $i++) {
+        $numero = str_pad($numeroInicio + $i, 6, '0', STR_PAD_LEFT);
+        $codigo = "EN{$numero}{$this->sufijo}";
+
+        $barcode = DNS1D::getBarcodePNG($codigo, 'C128');
+        $filename = "barcodes/{$codigo}.png";
+        Storage::disk('public')->put($filename, base64_decode($barcode));
+
+        $nuevo = Code::create([
+            'codigo'  => $codigo,
+            'barcode' => $filename,
         ]);
 
-        $ultimo = Code::where('codigo', 'LIKE', '%' . $this->sufijo)
-            ->orderBy('id', 'desc')
-            ->first();
-        if ($ultimo) {
-            // Extrae el número entre EN y el sufijo
-            preg_match('/EN(\d+)' . $this->sufijo . '/', $ultimo->codigo, $match);
-            $numeroInicio = isset($match[1]) ? (int) $match[1] : 0;
-        } else {
-            $numeroInicio = 0;
-        }
+        // 🔁 Registrar evento por cada código
+        Eventos::create([
+            'accion'      => 'Generación de código',
+            'descripcion' => "Se generó el código {$codigo}",
+            'codigo'      => $codigo,
+            'user_id'     => Auth::id(),
+        ]);
 
-        $idsGenerados = [];
-
-        for ($i = 1; $i <= $this->cantidad; $i++) {
-            $numero = str_pad($numeroInicio + $i, 6, '0', STR_PAD_LEFT);
-            $codigo = "EN{$numero}{$this->sufijo}";
-
-            $barcode = DNS1D::getBarcodePNG($codigo, 'C128');
-            $filename = "barcodes/{$codigo}.png";
-            Storage::disk('public')->put($filename, base64_decode($barcode));
-
-            $nuevo = Code::create([
-                'codigo' => $codigo,
-                'barcode' => $filename,
-            ]);
-
-            $idsGenerados[] = $nuevo->id;
-        }
-
-        // Guarda los IDs generados en sesión
-        session()->put('codigos_generados', $idsGenerados);
-
-        // Redirige al PDF
-        return redirect()->route('generar.pdf');
+        $idsGenerados[] = $nuevo->id;
     }
+
+    session()->put('codigos_generados', $idsGenerados);
+
+    return redirect()->route('generar.pdf');
+}
 
     public function render()
     {

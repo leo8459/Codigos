@@ -6,6 +6,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\CodigoController;
 use App\Http\Controllers\CodigoEmpresaController;
 use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\EventosController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleHasPermissionController;
 use App\Livewire\CodigoEmpresa;
@@ -83,6 +84,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/empresa', [EmpresaController::class, 'index'])->name('empresas.index');
     Route::get('/empresa/crear', [EmpresaController::class, 'create'])->name('empresas.create');
     Route::get('/codigo-crear', [CodigoEmpresaController::class, 'crearcodigo']);
+        Route::get('/eventosregistro', [EventosController::class, 'eventos']);
+
 Route::get('/codigos/pdf/{ids}', [CodigoEmpresaController::class, 'generarPDF'])->name('codigos.pdf');
 Route::post('/codigos/reimprimir', [CodigoEmpresaController::class, 'reimprimir'])->name('codigos.reimprimir');
 Route::get('/reporte-codigos', [\App\Http\Controllers\CodigoEmpresaController::class, 'formularioReporte'])->name('codigos.reporte.form');
