@@ -99,7 +99,7 @@ public function generarReporte(Request $request)
         'hasta' => $request->input('hasta'),
     ];
 
-    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.reporte-codigos-generados', compact('reporte', 'rango'))
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.reporte-codigos-generados', compact('reporte', 'rango', 'totalGeneral'))
         ->setPaper('A4', 'portrait');
 
     return $pdf->download('reporte_codigos_generados.pdf');
