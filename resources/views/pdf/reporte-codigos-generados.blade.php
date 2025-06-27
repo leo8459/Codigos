@@ -34,8 +34,9 @@
         }
 
         th {
-            background-color: #003366;
-            color: white;
+            background-color: #fff; /* Fondo blanco */
+            color: #000;             /* Texto negro */
+            font-weight: bold;
         }
 
         tfoot tr th {
