@@ -82,17 +82,18 @@ public function generarReporte(Request $request)
     $hasta = $request->input('hasta') . ' 23:59:59';
 
     $query = CodigoEmpresas::selectRaw('empresas.sigla as iata, empresas.codigo_cliente, count(*) as total')
-    ->join('empresa as empresas', 'codigoempresa.empresa_id', '=', 'empresas.id')
-    ->whereBetween('codigoempresa.created_at', [$desde, $hasta])
-    ->groupBy('empresas.sigla', 'empresas.codigo_cliente')
-    ->orderBy('empresas.codigo_cliente', 'asc');
-
+        ->join('empresa as empresas', 'codigoempresa.empresa_id', '=', 'empresas.id')
+        ->whereBetween('codigoempresa.created_at', [$desde, $hasta])
+        ->groupBy('empresas.sigla', 'empresas.codigo_cliente')
+        ->orderBy('empresas.codigo_cliente', 'asc');
 
     if ($request->empresa_id) {
         $query->where('empresas.id', $request->empresa_id);
     }
 
     $reporte = $query->get();
+    $totalGeneral = $reporte->sum('total');
+
     $rango = [
         'desde' => $request->input('desde'),
         'hasta' => $request->input('hasta'),
@@ -103,4 +104,5 @@ public function generarReporte(Request $request)
 
     return $pdf->download('reporte_codigos_generados.pdf');
 }
+
 }

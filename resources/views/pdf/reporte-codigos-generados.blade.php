@@ -75,6 +75,12 @@
                     </tr>
                 @endforeach
             </tbody>
+             <tfoot>
+        <tr>
+            <th>Total General</th>
+            <th>{{ $totalGeneral }}</th>
+        </tr>
+    </tfoot>
         </table>
     </div>
 
