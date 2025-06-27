@@ -1,26 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="utf-8">
     <style>
         @page {
-            size: 8.5in 13in; /* Tamaño oficio */
-            margin: 1in;       /* Márgenes seguros */
+            size: 8.5in 13in;
+            margin: 1in;
         }
 
         html, body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
             font-family: Arial, sans-serif;
             font-size: 12px;
-        }
-
-        body {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            margin: 0;
+            padding: 0;
         }
 
         h2, h4, p {
@@ -37,7 +29,7 @@
 
         th, td {
             border: 1px solid #444;
-            padding: 5px;
+            padding: 6px;
             text-align: center;
         }
 
@@ -46,8 +38,13 @@
             color: white;
         }
 
+        tfoot tr th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
         .footer {
-            margin-top: auto;
+            margin-top: 40px;
             font-size: 10px;
             text-align: center;
             color: #555;
@@ -55,34 +52,32 @@
     </style>
 </head>
 <body>
-    <div>
-        <h2>Agencia Boliviana de Correos</h2>
-        <h4>Reporte de Códigos Generados</h4>
-        <p><strong>Rango de fechas:</strong> {{ $rango['desde'] }} al {{ $rango['hasta'] }}</p>
+    <h2>Agencia Boliviana de Correos</h2>
+    <h4>Reporte de Códigos Generados</h4>
+    <p><strong>Rango de fechas:</strong> {{ $rango['desde'] }} al {{ $rango['hasta'] }}</p>
 
-        <table>
-            <thead>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre Empresa</th>
+                <th>Total Generados</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($reporte as $fila)
                 <tr>
-                    <th>Nombre Empresa</th>
-                    <th>Total Generados</th>
+                    <td>{{ $fila->iata }}</td>
+                    <td>{{ $fila->total }}</td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach ($reporte as $fila)
-                    <tr>
-                        <td>{{ $fila->iata }}</td>
-                        <td>{{ $fila->total }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-             <tfoot>
-        <tr>
-            <th>Total General</th>
-            <th>{{ $totalGeneral }}</th>
-        </tr>
-    </tfoot>
-        </table>
-    </div>
+            @endforeach
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Total General</th>
+                <th>{{ $totalGeneral }}</th>
+            </tr>
+        </tfoot>
+    </table>
 
     <div class="footer">
         Reporte generado automáticamente por el sistema de control de códigos – {{ now()->format('d/m/Y H:i') }}
